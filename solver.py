@@ -6,6 +6,27 @@ class Sudoku:
         self.size = size
         self.sudoku = [[0 for i in range(self.size)] for j in range(self.size)]
 
+    def get_input(self):
+        # print('Enter numbers left to right, row by row, top to bottom, '
+        #       'no spaces, 0 for blank: ')
+        #
+        # for i in range(self.size-8):
+        #     row = input('Row ' + str(i) + ': ')
+        #
+        #     for j in range(self.size):
+        #         self.sudoku[i][j] = row[j]
+
+        # for testing
+        self.sudoku[0] = [8, 3, 0, 0, 7, 6, 0, 4, 2]
+        self.sudoku[1] = [6, 0, 0, 3, 0, 0, 0, 9, 7]
+        self.sudoku[2] = [0, 0, 0, 0, 8, 2, 1, 0, 0]
+        self.sudoku[3] = [0, 9, 0, 0, 3, 0, 0, 0, 5]
+        self.sudoku[4] = [0, 2, 6, 0, 0, 0, 7, 3, 0]
+        self.sudoku[5] = [3, 0, 0, 0, 2, 0, 0, 1, 0]
+        self.sudoku[6] = [0, 0, 3, 4, 6, 0, 0, 0, 0]
+        self.sudoku[7] = [1, 7, 0, 0, 0, 3, 0, 0, 6]
+        self.sudoku[8] = [2, 6, 0, 7, 9, 0, 0, 5, 4]
+
     def __str__(self):
         s = ""
         col_counter, row_counter = 0, 0
@@ -16,7 +37,11 @@ class Sudoku:
                 if col_counter == 3 or col_counter == 6:
                     s += '| '
                 col_counter += 1
-                s += str(column) + ' '
+
+                if column != 0:
+                    s += str(column) + ' '
+                else:
+                    s += '  '
 
             s += '\n'
 
@@ -32,4 +57,5 @@ class Sudoku:
 
 if __name__ == '__main__':
     sudoku = Sudoku()
+    sudoku.get_input()
     print(sudoku)
