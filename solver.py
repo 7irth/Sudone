@@ -2,10 +2,11 @@ __author__ = 'tirth'
 
 
 class Sudoku:
-    def __init__(self, size=9, max_iterations=50):
+    def __init__(self, size=9, max_iterations=25):
         self.size = size
         self.sudoku = [[0 for i in range(self.size)] for j in range(self.size)]
         self.empties = {}
+        self.box_empties = {}
         self.current_iteration = 0
         self.max_iterations = max_iterations
 
@@ -138,9 +139,35 @@ class Sudoku:
 
             cell_counter = 0
 
-        s += 'after ' + str(self.current_iteration) + ' iterations,\n' \
+        s += 'after ' + str(self.current_iteration) + ' iterations, ' \
              + str(len(self.empties)) + ' empty spots remain\n'
         return s
+
+    @staticmethod
+    def get_box(row, cell):
+        if row < 3:
+            if cell < 3:
+                box = 0
+            elif cell > 5:
+                box = 2
+            else:
+                box = 1
+        elif row > 5:
+            if cell < 3:
+                box = 6
+            elif cell > 5:
+                box = 8
+            else:
+                box = 7
+        else:
+            if cell < 3:
+                box = 3
+            elif cell > 5:
+                box = 5
+            else:
+                box = 4
+
+        return box
 
     def fill_empties(self):
         rows, cells, boxes = self.get_stuff()
@@ -150,27 +177,7 @@ class Sudoku:
                 if self.sudoku[row][cell] == 0:  # go through empty cells
 
                     # determine box, uggo again
-                    if row < 3:
-                        if cell < 3:
-                            box = 0
-                        elif cell > 5:
-                            box = 2
-                        else:
-                            box = 1
-                    elif row > 5:
-                        if cell < 3:
-                            box = 6
-                        elif cell > 5:
-                            box = 8
-                        else:
-                            box = 7
-                    else:
-                        if cell < 3:
-                            box = 3
-                        elif cell > 5:
-                            box = 5
-                        else:
-                            box = 4
+                    box = self.get_box(row, cell)
 
                     possibilities = []
 
@@ -178,13 +185,13 @@ class Sudoku:
                         if guess not in (rows[row] + cells[cell] + boxes[box]):
                             possibilities.append(guess)
 
-                    print(row, cell)
-                    print('--')
-                    print('row', rows[row])  # your boat
-                    print('col', cells[cell])
-                    print('box', boxes[box])
-                    print('pos', possibilities)
-                    print()
+                    # print(row, cell)
+                    # print('--')
+                    # print('row', rows[row])  # your boat
+                    # print('col', cells[cell])
+                    # print('box', boxes[box])
+                    # print('pos', possibilities)
+                    # print()
 
                     self.empties[(row, cell)] = \
                         [rows[row], cells[cell], boxes[box], possibilities]
@@ -208,24 +215,59 @@ class Sudoku:
                     if possibility in (current[0] + current[1] + current[2]):
                         self.empties[empty][3].remove(possibility)
 
-                # then each box
-                self.check_boxes()
+                # then each box (enumerate possibilities per box)
+                box = self.get_box(empty[0], empty[1])
 
-                print(empty, current)
+                # # all numbers in box
+                # elements = [i for i in current[2] if i != 0]
+                #
+                # # missing numbers in box
+                # self.box_empties[box] = [i for i in range(1, 10)
+                #                          if i not in elements]
+
+                if box in self.box_empties.keys():
+                    self.box_empties[box].append(current[3])
+                else:
+                    self.box_empties[box] = [current[3]]
+
+                # print(empty, current)
+                # print(self.box_empties)
 
                 if len(current[3]) == 1:
                     self.sudoku[empty[0]][empty[1]] = \
                         self.empties[empty][3].pop()
                     self.empties.pop(empty)
 
+            vacant_boxes = []
+
+            for key in self.box_empties.keys():
+                vacant_boxes.append(key)
+
+            for vacant in vacant_boxes:
+                current = self.box_empties[vacant]
+
+                counts = {}
+                
+                for possibilities in current:
+                    for each in possibilities:
+                        if each not in counts.keys():
+                            counts[each] = 0
+
+                    for each in counts.keys():
+                        counts[each] += possibilities.count(each)
+
+                    print(possibilities)
+                print(counts)
+                print()
+
+                # print(vacant, current)
+
+            self.box_empties = {}
             self.current_iteration += 1
             self.solve()
 
         else:
             return self.check_puzzle()
-
-    def check_boxes(self):
-        pass
 
 
 if __name__ == '__main__':
