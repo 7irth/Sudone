@@ -1,27 +1,27 @@
-__author__ = 'tirth'
+__author__ = 'Tirth Patel <complaints@tirthpatel.com>'
 
 
 class Sudoku:
     def __init__(self, size=9, max_iterations=25):
-        self.size = size
-        self.sudoku = [[0 for i in range(self.size)] for j in range(self.size)]
+        self.sudoku = [[0 for _ in range(size)] for _ in range(size)]
         self.empties = {}
         self.box_empties = {}
-        self.current_iteration = 0
-        self.max_iterations = max_iterations
+        self.current = 0
+        self.max_iter = max_iterations
+        self.spots = len(self.sudoku) ** 2
 
     def get_input(self, puzzle=None):
         if puzzle:
-            for i in range(self.size):
+            for i in range(len(self.sudoku)):
                 self.sudoku[i] = puzzle[i]
         else:
             print('Enter numbers left to right, row by row, top to bottom, '
                   'no spaces, 0 for blank: ')
 
-            for i in range(self.size):
+            for i in range(len(self.sudoku)):
                 row = input('Row ' + str(i) + ': ')
 
-                for j in range(self.size):
+                for j in range(len(self.sudoku)):
                     self.sudoku[i][j] = int(row[j])
 
         return self.valid_puzzle(initial=True)
@@ -56,7 +56,7 @@ class Sudoku:
     def get_stuff(self):
         rows, cells, boxes = [], [], []
 
-        for i in range(self.size):
+        for i in range(len(self.sudoku)):
             cells.append([])
             boxes.append([])
 
@@ -109,7 +109,7 @@ class Sudoku:
 
             cell_counter = 0
 
-        s += 'after ' + str(self.current_iteration) + ' iterations, ' \
+        s += 'after ' + str(self.current) + ' iterations, ' \
              + str(len(self.empties)) + ' empty spots remain\n'
         return s
 
@@ -214,25 +214,33 @@ class Sudoku:
                             print(coords, key, 'by boxes')
 
     def solve(self):  # where the magic happens
-        print('NOW AT', self.current_iteration)
+        print('NOW AT', self.current)
         print(self.__str__())
 
-        if len(self.empties) > 0 \
-                and self.current_iteration < self.max_iterations:
-            self.current_iteration += 1
+        if self.spots > len(self.empties) > 0 and self.current < self.max_iter:
+            self.spots = len(self.empties)
+            self.current += 1
 
+            print('--- added ---')
             # check by cells
             self.check_cells()
 
             # check by boxes
             self.check_boxes()
+            print('---\n')
 
             # recurse until solved
-            self.solve()
+            return self.solve()
         else:
-            print(self.valid_puzzle())
-            return self.valid_puzzle()
+            if self.valid_puzzle():
+                return True
+            else:
+                self.print_empties()
+                return False
 
+    def print_empties(self):
+        for cell in sorted(self.empties.keys()):
+            print(cell, self.empties[cell][3])
 
 if __name__ == '__main__':
     sudoku = Sudoku()
