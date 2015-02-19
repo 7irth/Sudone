@@ -12,17 +12,19 @@ class Sudoku:
 
     def get_input(self, puzzle=None):
         if puzzle:
-            for i in range(len(self.sudoku)):
-                self.sudoku[i] = puzzle[i]
+            for row in range(len(self.sudoku)):
+                count = row * len(self.sudoku)
+                for cell in range(len(self.sudoku)):
+                    self.sudoku[row][cell] = int(puzzle[count + cell])
         else:
             print('Enter numbers left to right, row by row, top to bottom, '
                   'no spaces, 0 for blank: ')
 
-            for i in range(len(self.sudoku)):
-                row = input('Row ' + str(i) + ': ')
+            for row in range(len(self.sudoku)):
+                row = input('Row ' + str(row) + ': ')
 
-                for j in range(len(self.sudoku)):
-                    self.sudoku[i][j] = int(row[j])
+                for cell in range(len(self.sudoku)):
+                    self.sudoku[row][cell] = int(row[cell])
 
         return self.valid_puzzle(initial=True)
 
@@ -114,7 +116,10 @@ class Sudoku:
         return s
 
     @staticmethod
-    def get_box(row, cell):
+    def get_box(coordinates):
+        row = coordinates[0]
+        cell = coordinates[1]
+
         if row < 3:
             if cell < 3:
                 box = 0
@@ -148,7 +153,7 @@ class Sudoku:
                 if self.sudoku[row][cell] == 0:  # go through empty cells
 
                     # determine box, uggo again
-                    box = self.get_box(row, cell)
+                    box = self.get_box((row, cell))
 
                     possibilities = [i for i in range(1, 10) if i not in
                                      (rows[row] + cells[cell] + boxes[box])]
@@ -180,7 +185,7 @@ class Sudoku:
         for cell in self.empties.keys():
 
             # enumerate possibilities per box
-            box = self.get_box(cell[0], cell[1])
+            box = self.get_box(cell)
 
             if box in self.box_empties.keys():
                 self.box_empties[box].append(cell)
@@ -239,8 +244,8 @@ class Sudoku:
                 return False
 
     def print_empties(self):
-        for cell in sorted(self.empties.keys()):
-            print(cell, self.empties[cell][3])
+        for cell in sorted(self.empties.keys(), key=self.get_box):
+            print(cell, self.get_box(cell), self.empties[cell][3])
 
 if __name__ == '__main__':
     sudoku = Sudoku()
