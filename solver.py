@@ -21,7 +21,7 @@ class Sudoku:
         #         self.sudoku[i][j] = int(row[j])
 
         # for testing
-        # incomplete easy (record: 6 iters)
+        # incomplete easy (record: 4 iters)
         self.sudoku[0] = [8, 3, 0, 0, 7, 6, 0, 4, 2]
         self.sudoku[1] = [6, 0, 0, 3, 0, 0, 0, 9, 7]
         self.sudoku[2] = [0, 0, 0, 0, 8, 2, 1, 0, 0]
@@ -33,7 +33,7 @@ class Sudoku:
         self.sudoku[8] = [2, 6, 0, 7, 9, 0, 0, 5, 4]
 
         # incomplete hard
-        # self.sudoku[0] = [0, 0, 3, 1, 0, 5, 2, 6, 0]
+        # self.sudoku[0] = [0, 0, 3, 1, 0, 5, 0, 6, 0]
         # self.sudoku[1] = [0, 0, 0, 0, 0, 4, 0, 0, 8]
         # self.sudoku[2] = [0, 6, 0, 0, 0, 0, 5, 0, 7]
         # self.sudoku[3] = [0, 5, 6, 0, 0, 0, 0, 0, 0]
@@ -200,14 +200,14 @@ class Sudoku:
     def solve(self):  # where the magic happens
         print('NOW AT', self.current_iteration)
         print(self.__str__())
-
+        # print(self.empties[(5, 8)])
         # print('LEFT', self.empties)
 
         if len(self.empties) > 0 \
                 and self.current_iteration < self.max_iterations:
             self.current_iteration += 1
-            empty_cells = []
 
+            empty_cells = []
             # to iterate through the dictionary while changing it
             for key in self.empties.keys():
                 empty_cells.append(key)
@@ -219,19 +219,24 @@ class Sudoku:
                 possibilities = [i for i in current[3] if i not in
                                  (current[0] + current[1] + current[2])]
 
-                #
-                # for possibility in possibilities:
-                #     if possibility in (current[0] + current[1] + current[2]):
-                #         possibilities.remove(possibility)
-
-                # print(empty, current)
-
                 # only one left, put it in the puzzle
                 if len(possibilities) == 1:
                     a = possibilities[0]
                     self.sudoku[empty[0]][empty[1]] = possibilities.pop()
                     print(empty, a, 'by cells')
                     self.fill_empties()
+
+            empty_cells = []
+            # to iterate through the dictionary while changing it
+            for key in self.empties.keys():
+                empty_cells.append(key)
+
+            for empty in empty_cells:  # do stuff to remove possibilities
+                current = self.empties[empty]
+
+                # remove possibility if it exists in row, column or box
+                possibilities = [i for i in current[3] if i not in
+                                 (current[0] + current[1] + current[2])]
 
                 # enumerate possibilities per box
                 box = self.get_box(empty[0], empty[1])
@@ -244,43 +249,42 @@ class Sudoku:
 
                     # print(self.box_empties)
 
-            # vacant_boxes = []
-            #
-            # for key in self.box_empties.keys():
-            #     vacant_boxes.append(key)
-            #
-            # # each box with empty cells
-            # for vacant in vacant_boxes:
-            #     current = self.box_empties[vacant]  # empty cells in box
-            #     # print('box', vacant, current)
-            #
-            #     counts = {}
-            #
-            #     # figure out how many times each possibility shows up
-            #     for possibilities in current:
-            #         if type(possibilities) is list:
-            #             for each in possibilities:
-            #                 if each not in counts.keys():
-            #                     counts[each] = 0
-            #
-            #             # print(vacant, possibilities)
-            #
-            #             for each in counts.keys():
-            #                 counts[each] += possibilities.count(each)
-            #
-            #     for key in counts.keys():
-            #         if counts[key] == 1:  # only showed up once, has it be it
-            #             for cell in current:
-            #                 if type(cell) is list and key in cell:
-            #                     coords = current[current.index(cell) - 1]
-            #                     print(coords, key, 'by boxes')
-            #                     self.sudoku[coords[0]][coords[1]] = key
-            #                     self.fill_empties()
-            #
-            #                     # remove from current
-            #
-            # self.box_empties = {}
-            # self.fill_empties()
+            vacant_boxes = []
+
+            for key in self.box_empties.keys():
+                vacant_boxes.append(key)
+
+            # each box with empty cells
+            for vacant in vacant_boxes:
+                current = self.box_empties[vacant]  # empty cells in box
+                # print('box', vacant, current)
+
+                counts = {}
+
+                # figure out how many times each possibility shows up
+                for possibilities in current:
+                    if type(possibilities) is list:
+                        for each in possibilities:
+                            if each not in counts.keys():
+                                counts[each] = 0
+
+                        # print(vacant, possibilities)
+
+                        for each in counts.keys():
+                            counts[each] += possibilities.count(each)
+
+                for key in counts.keys():
+                    if counts[key] == 1:  # only showed up once, has it be it
+                        for cell in current:
+                            if type(cell) is list and key in cell:
+                                coords = current[current.index(cell) - 1]
+                                print(coords, key, 'by boxes')
+                                self.sudoku[coords[0]][coords[1]] = key
+                                self.fill_empties()
+
+                                # remove from current
+
+            self.box_empties = {}
             self.solve()
         else:
             return self.check_puzzle()
@@ -288,7 +292,9 @@ class Sudoku:
 
 if __name__ == '__main__':
     sudoku = Sudoku()
+    # print(sudoku)
     if sudoku.get_input():
-        # print(sudoku)
         sudoku.solve()
         # print(sudoku)
+        if sudoku.check_puzzle():
+            print('YAY')
