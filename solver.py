@@ -218,6 +218,16 @@ class Sudoku:
 
                             print(coords, key, 'by boxes')
 
+    def rando(self):
+        smallest = 9
+        for cell in self.empties.keys():
+            if len(self.empties[cell][3]) < smallest:
+                smallest = len(self.empties[cell][3])
+
+        for cell in self.empties.keys():
+            if len(self.empties[cell][3]) == smallest:
+                print('stuff', self.empties[cell][3])
+
     def solve(self):  # where the magic happens
         print('NOW AT', self.current)
         print(self.__str__())
@@ -235,6 +245,11 @@ class Sudoku:
             print('---\n')
 
             # recurse until solved
+            return self.solve()
+        elif len(self.empties) > 0 and self.current < self.max_iter:
+            self.spots = len(self.empties)
+            self.current += 1
+            self.rando()
             return self.solve()
         else:
             if self.valid_puzzle():
