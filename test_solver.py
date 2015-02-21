@@ -67,7 +67,7 @@ class TestSolver(unittest.TestCase):
         x_wing = '005004000000060090300000007000040000008000400' \
                  '541000009200000003007400000000003000'
 
-        if self.puzzle.get_input(self.hard):  # choose puzzle
+        if self.puzzle.get_input(self.evil):  # choose puzzle
             self.assertTrue(self.puzzle.solve())
 
 if __name__ == '__main__':

@@ -4,7 +4,7 @@ import random
 
 
 class Sudoku:
-    def __init__(self, size=9, max_iterations=100):
+    def __init__(self, size=9, max_iterations=1000):
         self.sudoku = [[0 for _ in range(size)] for _ in range(size)]
         self.empties = {}
         self.box_empties = {}
@@ -277,10 +277,8 @@ class Sudoku:
             self.rando()
 
             if self.solve():
-                print('No wai')
                 return True
             else:
-                print('Try again')
                 return False
 
         else:
