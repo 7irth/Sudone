@@ -19,7 +19,7 @@ class TestSolver(unittest.TestCase):
                     '170003006' \
                     '260790054'
 
-        # medium
+        # medium (random record: 7 iters)
         self.medium = '050000006' \
                       '480090003' \
                       '903800000' \
@@ -30,7 +30,7 @@ class TestSolver(unittest.TestCase):
                       '700050041' \
                       '800000090'  # (0, 0) -> 2 to make solvable
 
-        # hard
+        # hard (random record: 24 iters)
         self.hard = '003105060' \
                     '000004008' \
                     '060000507' \
@@ -67,7 +67,7 @@ class TestSolver(unittest.TestCase):
         x_wing = '005004000000060090300000007000040000008000400' \
                  '541000009200000003007400000000003000'
 
-        if self.puzzle.get_input(self.medium):  # choose puzzle
+        if self.puzzle.get_input(self.hard):  # choose puzzle
             self.assertTrue(self.puzzle.solve())
 
 if __name__ == '__main__':

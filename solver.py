@@ -1,14 +1,18 @@
 __author__ = 'Tirth Patel <complaints@tirthpatel.com>'
 
+import random
+
 
 class Sudoku:
-    def __init__(self, size=9, max_iterations=25):
+    def __init__(self, size=9, max_iterations=100):
         self.sudoku = [[0 for _ in range(size)] for _ in range(size)]
         self.empties = {}
         self.box_empties = {}
         self.current = 0
         self.max_iter = max_iterations
         self.spots = len(self.sudoku) ** 2
+        self.old = [[]]
+        self.bah = False
 
     def get_input(self, puzzle=None):
         if puzzle:
@@ -224,9 +228,23 @@ class Sudoku:
             if len(self.empties[cell][3]) < smallest:
                 smallest = len(self.empties[cell][3])
 
-        for cell in self.empties.keys():
+        if smallest == 0:
+            print(self.sudoku == self.old)
+            self.sudoku = [row[:] for row in self.old]
+            self.fill_empties()
+            self.bah = False
+
+        for cell in sorted(self.empties.keys()):
             if len(self.empties[cell][3]) == smallest:
-                print('stuff', self.empties[cell][3])
+                print(cell, 'CHOICES', self.empties[cell][3])
+                self.empties[cell][3] = \
+                    [self.empties[cell][3][random.randrange(smallest)]]
+                print('PICKED', self.empties[cell][3][0])
+                self.sudoku[cell[0]][cell[1]] = self.empties[cell][3].pop()
+                self.fill_empties()
+
+                print(cell, self.sudoku[cell[0]][cell[1]], 'by rando')
+                break
 
     def solve(self):  # where the magic happens
         print('NOW AT', self.current)
@@ -246,11 +264,25 @@ class Sudoku:
 
             # recurse until solved
             return self.solve()
+
         elif len(self.empties) > 0 and self.current < self.max_iter:
             self.spots = len(self.empties)
             self.current += 1
+
+            if not self.bah:
+                self.old = [row[:] for row in self.sudoku]
+                self.bah = True
+
+            # do random stuff
             self.rando()
-            return self.solve()
+
+            if self.solve():
+                print('No wai')
+                return True
+            else:
+                print('Try again')
+                return False
+
         else:
             if self.valid_puzzle():
                 return True
