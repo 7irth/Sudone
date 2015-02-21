@@ -4,15 +4,15 @@ import random
 
 
 class Sudoku:
-    def __init__(self, size=9, max_iterations=1000):
+    def __init__(self, size=9, max_iterations=10000):
         self.sudoku = [[0 for _ in range(size)] for _ in range(size)]
         self.empties = {}
         self.box_empties = {}
         self.current = 0
         self.max_iter = max_iterations
         self.spots = len(self.sudoku) ** 2
-        self.old = [[]]
-        self.bah = False
+        self.old_sudoku = [[]]
+        self.reset = False
 
     def get_input(self, puzzle=None):
         if puzzle:
@@ -30,9 +30,9 @@ class Sudoku:
                 for cell in range(len(self.sudoku)):
                     self.sudoku[row][cell] = int(row[cell])
 
-        return self.valid_puzzle(initial=True)
+        return self.is_valid(initial=True)
 
-    def valid_puzzle(self, initial=False):
+    def is_valid(self, initial=False):
         rows, cells, boxes = self.get_stuff()
         rows_cells_boxes = rows + cells + boxes
 
@@ -181,7 +181,7 @@ class Sudoku:
                 self.sudoku[cell[0]][cell[1]] = self.empties[cell][3].pop()
                 self.fill_empties()
 
-                print(cell, self.sudoku[cell[0]][cell[1]], 'by cells')
+                # print(cell, self.sudoku[cell[0]][cell[1]], 'by cells')
 
     def check_boxes(self):
         self.box_empties = {}
@@ -220,7 +220,7 @@ class Sudoku:
                             self.sudoku[coords[0]][coords[1]] = key
                             self.fill_empties()
 
-                            print(coords, key, 'by boxes')
+                            # print(coords, key, 'by boxes')
 
     def rando(self):
         smallest = 9
@@ -228,39 +228,39 @@ class Sudoku:
             if len(self.empties[cell][3]) < smallest:
                 smallest = len(self.empties[cell][3])
 
-        if smallest == 0:
-            print(self.sudoku == self.old)
-            self.sudoku = [row[:] for row in self.old]
+        if smallest == 0:  # dead end
+            # print(self.sudoku == self.old_sudoku)
+            self.sudoku = [row[:] for row in self.old_sudoku]
             self.fill_empties()
-            self.bah = False
+            self.reset = False
 
         for cell in sorted(self.empties.keys()):
             if len(self.empties[cell][3]) == smallest:
-                print(cell, 'CHOICES', self.empties[cell][3])
+                # print(cell, 'CHOICES', self.empties[cell][3])
                 self.empties[cell][3] = \
                     [self.empties[cell][3][random.randrange(smallest)]]
-                print('PICKED', self.empties[cell][3][0])
+                # print('PICKED', self.empties[cell][3][0])
                 self.sudoku[cell[0]][cell[1]] = self.empties[cell][3].pop()
                 self.fill_empties()
 
-                print(cell, self.sudoku[cell[0]][cell[1]], 'by rando')
+                # print(cell, self.sudoku[cell[0]][cell[1]], 'by rando')
                 break
 
     def solve(self):  # where the magic happens
-        print('NOW AT', self.current)
-        print(self.__str__())
+        # print('NOW AT', self.current)
+        # print(self.__str__())
 
         if self.spots > len(self.empties) > 0 and self.current < self.max_iter:
             self.spots = len(self.empties)
             self.current += 1
 
-            print('--- added ---')
+            # print('--- added ---')
             # check by cells
             self.check_cells()
 
             # check by boxes
             self.check_boxes()
-            print('---\n')
+            # print('---\n')
 
             # recurse until solved
             return self.solve()
@@ -269,9 +269,9 @@ class Sudoku:
             self.spots = len(self.empties)
             self.current += 1
 
-            if not self.bah:
-                self.old = [row[:] for row in self.sudoku]
-                self.bah = True
+            if not self.reset:
+                self.old_sudoku = [row[:] for row in self.sudoku]
+                self.reset = True
 
             # do random stuff
             self.rando()
@@ -282,10 +282,10 @@ class Sudoku:
                 return False
 
         else:
-            if self.valid_puzzle():
+            if self.is_valid():
                 return True
             else:
-                self.print_empties()
+                # self.print_empties()
                 return False
 
     def print_empties(self):
