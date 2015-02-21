@@ -6,9 +6,9 @@ import solver
 
 class TestSolver(unittest.TestCase):
     def setUp(self):
-        self.sudoku = solver.Sudoku()
+        self.sudoku = solver.Sudoku(max_iterations=1000, debug_print=False)
 
-        # easy (record: 4 iters)
+        # (record: 4 iters)
         easy = '830076042' \
                '600300097' \
                '000082100' \
@@ -19,7 +19,7 @@ class TestSolver(unittest.TestCase):
                '170003006' \
                '260790054'
 
-        # medium (random record: 8 iters, average ~16 iters)
+        # (random record: 8 iters, average ~13 iters)
         medium = '050000006' \
                  '480090003' \
                  '903800000' \
@@ -28,9 +28,9 @@ class TestSolver(unittest.TestCase):
                  '000500810' \
                  '000003508' \
                  '700050041' \
-                 '800000090'  # (0, 0) -> 2 to make solvable
+                 '800000090'
 
-        # hard (random record: 24 iters, average ~85 iters)
+        # (random record: 24 iters, average ~45 iters)
         hard = '003105060' \
                '000004008' \
                '060000507' \
@@ -41,7 +41,7 @@ class TestSolver(unittest.TestCase):
                '600400000' \
                '040203900'
 
-        # evil (random record: 21 iters, average ~262 iters)
+        # (random record: 21 iters, average ~262 iters)
         evil = '005090400' \
                '700046000' \
                '000300090' \
@@ -74,36 +74,35 @@ class TestSolver(unittest.TestCase):
                   '008500010' \
                   '090000400'
 
-        self.puzzle = evil  # choose puzzle
+        self.puzzle = hard  # choose puzzle
 
     def test_solve(self):
         if self.sudoku.get_input(self.puzzle):
             self.assertTrue(self.sudoku.solve())
+            print('denied', self.sudoku.removal)
+            print('done in', self.sudoku.current)
 
     def test_efficiency(self):
         iterations = []
-        validity = 50
+        validity = 100
 
         for i in range(validity):
-            self.sudoku.get_input(self.puzzle)
-            self.assertTrue(self.sudoku.solve())
+            if self.sudoku.get_input(self.puzzle):
+                self.assertTrue(self.sudoku.solve())
 
-            progress = round(i/(validity/100), 3)
+            progress = i/(validity/100)
             if progress % 10.0 == 0.0:
                 print(str(progress) + "%")
+
             iterations.append(self.sudoku.current)
 
-            self.sudoku = solver.Sudoku()
+            self.sudoku = solver.Sudoku(max_iterations=1000)
             self.sudoku.get_input(self.puzzle)
 
-        print('after', len(iterations))
-        print('min', min(iterations))
-
-        total = 0
-        for it in iterations:
-            total += it
-
-        print('average', total/len(iterations))
+        print('--')
+        print('after', len(iterations), 'runs')
+        print('min:', min(iterations), 'max:', max(iterations))
+        print('average:', sum(iterations)/len(iterations))
 
 
 if __name__ == '__main__':
