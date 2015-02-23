@@ -15,6 +15,9 @@ class Sudoku:
         self.out = debug_print
         self.latest = None
 
+        # overlay for testing
+        self.new_poss = {}
+
     def get_input(self, puzzle=None):
         if puzzle:
             for row in range(len(self.sudoku)):
@@ -164,10 +167,19 @@ class Sudoku:
                     possibilities = [i for i in range(1, 10) if i not in
                                      (rows[row] + cols[col] + boxes[box])]
 
-                    if (row, col) in self.removal:
-                        # print('deny', self.removal)
-                        possibilities = [p for p in possibilities if p not in
-                                         self.removal[(row, col)]]
+                    # if (row, col) in self.removal:
+                    # print('was', possibilities)
+                    #     print('deny', self.removal)
+                    #     possibilities = [p for p in possibilities if p not in
+                    #                      self.removal[(row, col)]]
+                    #     print('now', (row, col), possibilities)
+
+                    if (row, col) in self.new_poss and \
+                           42 not in self.new_poss[(row, col)]:
+
+                        print((row, col), 'now', self.new_poss[(row, col)])
+                        print(self.new_poss)
+                        possibilities = [p for p in self.new_poss[(row, col)]]
 
                     # print(row, col)
                     # print('--')
@@ -186,6 +198,10 @@ class Sudoku:
             # only one possibility, put it in the puzzle
             if len(self.empties[cell][3]) == 1:
                 self.sudoku[cell[0]][cell[1]] = self.empties[cell][3].pop()
+
+                if cell in self.new_poss:
+                    self.new_poss[cell].append(42)
+
                 self.fill_empties()
 
                 if self.out:
@@ -234,16 +250,20 @@ class Sudoku:
     def rando(self):
         smallest = 9
         for cell in self.empties.keys():
-            if len(self.empties[cell][3]) < smallest:
-                smallest = len(self.empties[cell][3])
+            if cell not in self.new_poss:
+                if len(self.empties[cell][3]) < smallest:
+                    smallest = len(self.empties[cell][3])
 
         if smallest == 0:  # dead end
-            # print('')
-            # print('WHOOPS, DO OVER')
-            if self.latest[0] in self.removal:
-                self.removal[self.latest[0]].append(self.latest[1])
-            else:
-                self.removal[self.latest[0]] = [self.latest[1]]
+            print('')
+            print('WHOOPS, DO OVER')
+            # if self.latest[0] in self.removal:
+            # self.removal[self.latest[0]].append(self.latest[1])
+            # else:
+            #     self.removal[self.latest[0]] = [self.latest[1]]
+
+            # overlay new possibilities
+            self.new_poss[self.latest[0]] = self.latest[2]
 
             self.sudoku = [row[:] for row in self.old_sudoku]
             self.fill_empties()
@@ -254,11 +274,13 @@ class Sudoku:
 
                 if len(choices) == smallest:
 
-                    # print(cell, 'CHOICES', choices)
+                    print(cell, 'CHOICES', choices)
                     choice = choices[random.randrange(smallest)]
-                    # print('PICKED', choice)
+                    print('PICKED', choice)
 
-                    self.latest = (cell, choice)
+                    choices.remove(choice)
+
+                    self.latest = (cell, choice, choices)
                     self.sudoku[cell[0]][cell[1]] = choice
                     self.fill_empties()
 
@@ -321,6 +343,7 @@ class Sudoku:
     def print_empties(self):
         for cell in sorted(self.empties.keys(), key=self.get_box):
             print(cell, self.get_box(cell), self.empties[cell][3])
+
 
 if __name__ == '__main__':
     sudoku = Sudoku()
