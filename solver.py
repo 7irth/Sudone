@@ -6,14 +6,14 @@ import random
 class Sudoku:
     def __init__(self, size=9, max_iterations=10000, debug_print=False):
         self.sudoku = [[0 for _ in range(size)] for _ in range(size)]
-        self.empties, self.box_empties, self.removal = {}, {}, {}
+        self.empties, self.box_empties, self.tried = {}, {}, {}
         self.current = 0
         self.max_iter = max_iterations
         self.spots = len(self.sudoku) ** 2
         self.old_sudoku = [[]]
         self.reset = False
         self.out = debug_print
-        self.latest = None
+        self.latest = []
 
     def get_input(self, puzzle=None):
         if puzzle:
@@ -164,11 +164,6 @@ class Sudoku:
                     possibilities = [i for i in range(1, 10) if i not in
                                      (rows[row] + cols[col] + boxes[box])]
 
-                    if (row, col) in self.removal:
-                        print('deny', self.removal)
-                        possibilities = [p for p in possibilities if p not in
-                                         self.removal[(row, col)]]
-
                     # print(row, col)
                     # print('--')
                     # print('row', rows[row])  # your boat
@@ -240,25 +235,31 @@ class Sudoku:
         if smallest == 0:  # dead end
             print('')
             print('WHOOPS, DO OVER')
-            if self.latest[0] in self.removal:
-                self.removal[self.latest[0]].append(self.latest[1])
-            else:
-                self.removal[self.latest[0]] = [self.latest[1]]
+            print('last time', self.latest)
+            if self.latest in self.tried.values():
+                a = [i for i in self.tried.values()]
+                print('tried that', a.count(self.latest), 'times')
+            # print(self.latest in self.tried.values())
+            self.tried[self.current] = self.latest
 
             self.sudoku = [row[:] for row in self.old_sudoku]
             self.fill_empties()
             self.reset = False
+            self.latest = []
         else:
-            for cell in sorted(self.empties.keys()):
+            q = [i for i in self.empties.keys()]
+            # random.shuffle(q)
+            for cell in q:
                 choices = self.empties[cell][3]
 
                 if len(choices) == smallest:
 
-                    print(cell, 'CHOICES', choices)
+                    print(cell, 'CHOICES', choices, '-> ', end='')
                     choice = choices[random.randrange(smallest)]
                     print('PICKED', choice)
 
-                    self.latest = (cell, choice)
+                    self.latest.append([cell, choice])
+
                     self.sudoku[cell[0]][cell[1]] = choice
                     self.fill_empties()
 
@@ -275,15 +276,13 @@ class Sudoku:
             self.spots = len(self.empties)
             self.current += 1
 
-            if self.out:
-                print('--- added ---')
+            print('--- added ---') if self.out else None
             # check by cells
             self.check_cells()
 
             # check by boxes
             self.check_boxes()
-            if self.out:
-                print('---\n')
+            print('-------------\n') if self.out else None
 
             # recurse until solved
             return self.solve()
@@ -296,14 +295,12 @@ class Sudoku:
                 self.old_sudoku = [row[:] for row in self.sudoku]
                 self.reset = True
 
-            if self.out:
-                print('--- added ---')
+            print('--- added ---') if self.out else None
 
             # do random stuff
             self.rando()
 
-            if self.out:
-                print('---\n')
+            print('--------------\n') if self.out else None
 
             if self.solve():
                 return True
@@ -314,8 +311,7 @@ class Sudoku:
             if self.is_valid():
                 return True
             else:
-                if self.out:
-                    self.print_empties()
+                self.print_empties() if self.out else None
                 return False
 
     def print_empties(self):
