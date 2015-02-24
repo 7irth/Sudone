@@ -6,7 +6,7 @@ import solver
 
 class TestSolver(unittest.TestCase):
     def setUp(self):
-        self.sudoku = solver.Sudoku(max_iterations=1000, debug_print=False)
+        self.sudoku = solver.Sudoku(max_iterations=1000, debug_print=True)
 
         # (record: 4 iters)
         easy = '830076042' \
@@ -74,12 +74,12 @@ class TestSolver(unittest.TestCase):
                   '008500010' \
                   '090000400'
 
-        self.puzzle = hard  # choose puzzle
+        self.puzzle = evil  # choose puzzle
 
     def test_solve(self):
         if self.sudoku.get_input(self.puzzle):
             self.assertTrue(self.sudoku.solve())
-            print('denied', self.sudoku.removal)
+            # print('denied', self.sudoku.removal)
             print('done in', self.sudoku.current)
 
     def test_efficiency(self):
