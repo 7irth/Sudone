@@ -61,9 +61,13 @@ class TestSolver(unittest.TestCase):
                '600400000' \
                '040203900'
 
-        # (random record: 17 iters, average ~130 iters [sorted]
-        #                 17 iters, average ~115 iters [unsorted]
-        #                 13 iters, average ~128 iters [random])
+        # hard record: 13 iters (15.78ms), average ~38 iters (31.9ms)
+        #
+        # after 100 [sorted] runs
+        # min iters: 17, max iters: 497
+        # min time:  15.78, max time: 339.54
+        # average iters: 122.32
+        # average time:  87.95
         evil = '005090400' \
                '700046000' \
                '000300090' \
@@ -96,7 +100,7 @@ class TestSolver(unittest.TestCase):
                   '008500010' \
                   '090000400'
 
-        self.puzzle = hard  # choose puzzle
+        self.puzzle = evil  # choose puzzle
 
     def test_solve(self):
         if self.sudoku.get_input(self.puzzle):

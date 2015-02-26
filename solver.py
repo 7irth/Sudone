@@ -3,9 +3,26 @@ __author__ = 'Tirth Patel <complaints@tirthpatel.com>'
 import random
 
 
+class Cell:
+    def __init__(self, row, col, number=0):
+        self.row_coord = row
+        self.col_coord = col
+        self.number = number
+
+        self.row, self.col, self.box, self.poss = [], [], [], []
+
+    def __str__(self):
+        return str(self.number)
+
+    def __repr__(self):
+        return str('c', str(self.number))
+
+
 class Sudoku:
     def __init__(self, size=9, max_iterations=10000, debug_print=False):
+        self.size = size
         self.sudoku = [[0 for _ in range(size)] for _ in range(size)]
+        # self.sudoku = [[Cell(i, j) for i in range(size)] for j in range(size)]
         self.empties, self.box_empties, self.tried = {}, {}, {}
         self.current = 0
         self.max_iter = max_iterations
@@ -64,9 +81,12 @@ class Sudoku:
     def get_stuff(self):
         rows, columns, boxes = [], [], []
 
-        for i in range(len(self.sudoku)):
-            columns.append([])
-            boxes.append([])
+        # for i in range(len(self.sudoku)):
+        #     columns.append([])
+        #     boxes.append([])
+
+        columns = [[] for _ in range(self.size)]
+        boxes = [[] for _ in range(self.size)]
 
         for row in self.sudoku:
             rows.append(row)
@@ -248,7 +268,7 @@ class Sudoku:
             self.latest = []
         else:
             q = [i for i in self.empties.keys()]
-            # random.shuffle(q)
+            # sorted(q)
             for cell in q:
                 choices = self.empties[cell][3]
 
