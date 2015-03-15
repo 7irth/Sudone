@@ -26,7 +26,7 @@ class Sudoku:
         self.empties, self.box_empties, self.tried = {}, {}, {}
         self.current = 0
         self.max_iter = max_iterations
-        self.spots = len(self.sudoku) ** 2
+        self.empty_spots = len(self.sudoku) ** 2
         self.old_sudoku = [[]]
         self.reset = False
         self.out = debug_print
@@ -253,12 +253,12 @@ class Sudoku:
                 smallest = len(self.empties[cell][3])
 
         if smallest == 0:  # dead end
-            print('')
-            print('WHOOPS, DO OVER')
-            print('last time', self.latest)
-            if self.latest in self.tried.values():
-                a = [i for i in self.tried.values()]
-                print('tried that', a.count(self.latest), 'times')
+            # print('')
+            # print('WHOOPS, DO OVER')
+            # print('last time', self.latest)
+            # if self.latest in self.tried.values():
+            #     a = [i for i in self.tried.values()]
+            #     print('tried that', a.count(self.latest), 'times')
             # print(self.latest in self.tried.values())
             self.tried[self.current] = self.latest
 
@@ -268,15 +268,15 @@ class Sudoku:
             self.latest = []
         else:
             q = [i for i in self.empties.keys()]
-            # sorted(q)
+            sorted(q)
             for cell in q:
                 choices = self.empties[cell][3]
 
                 if len(choices) == smallest:
 
-                    print(cell, 'CHOICES', choices, '-> ', end='')
+                    # print(cell, 'CHOICES', choices, '-> ', end='')
                     choice = choices[random.randrange(smallest)]
-                    print('PICKED', choice)
+                    # print('PICKED', choice)
 
                     self.latest.append([cell, choice])
 
@@ -292,8 +292,9 @@ class Sudoku:
             print('NOW AT', self.current)
             print(self)
 
-        if self.spots > len(self.empties) > 0 and self.current < self.max_iter:
-            self.spots = len(self.empties)
+        if self.empty_spots > len(self.empties) > 0 \
+                and self.current < self.max_iter:
+            self.empty_spots = len(self.empties)
             self.current += 1
 
             print('--- added ---') if self.out else None
@@ -308,7 +309,7 @@ class Sudoku:
             return self.solve()
 
         elif len(self.empties) > 0 and self.current < self.max_iter:
-            self.spots = len(self.empties)
+            self.empty_spots = len(self.empties)
             self.current += 1
 
             if not self.reset:

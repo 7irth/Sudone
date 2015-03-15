@@ -61,13 +61,19 @@ class TestSolver(unittest.TestCase):
                '600400000' \
                '040203900'
 
-        # hard record: 13 iters (15.78ms), average ~38 iters (31.9ms)
+        # evil record: 13 iters (15.78ms), average ~114 iters (94.24ms)
         #
         # after 100 [sorted] runs
         # min iters: 17, max iters: 497
         # min time:  15.78, max time: 339.54
         # average iters: 122.32
         # average time:  87.95
+        #
+        # after 100 [random] runs
+        # min iters: 13, max iters: 660
+        # min time:  17.17, max time: 526.37
+        # average iters: 113.44
+        # average time:  95.21
         evil = '005090400' \
                '700046000' \
                '000300090' \
